@@ -1,0 +1,113 @@
+from Tkinter import *
+import Tkinter as tk
+import Adafruit_DHT as dht
+import threading
+import tkFont
+import ImageTk
+import RPi.GPIO as GPIO
+import sys
+import time
+import csv
+from time import sleep
+from datetime import date
+
+today = date.today()
+
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(7, GPIO.OUT)
+GPIO.output(7, GPIO.HIGH)
+
+
+root = tk.Tk()
+
+
+r = StringVar()
+rai = StringVar()
+
+image = PhotoImage(file="pyday.gif")
+
+background=Label(root, image=image)
+background.place(x=0,y=0,relwidth=1, relheight=1)
+
+
+temperature = StringVar()
+temperature.set("----"+" C")
+humidity = StringVar()
+humidity.set("----"+" %")
+
+rain = StringVar()
+rain.set("----")
+
+tl = Label(root, fg="black", bg="white" , text="TEMPERATURE:", font=('Helvetica', 20))
+tl.place(x=190,y=265)
+
+temperatureLabel = Label(root, fg="white", background="black",  textvariable=temperature$
+temperatureLabel.place(x=190, y=300)
+
+
+hl = Label(root, fg="black", bg="white" , text="HUMIDITY:", font=('Helvetica',20))
+hl.place(x=190,y=505)
+
+humidityLabel = Label(root, fg="white", background="black", textvariable=humidity, font=$
+humidityLabel.place(x=340, y=480)
+
+rl = Label(root, fg="black", bg="white" , text="RAINFALL:", font=('Helvetica', 20))
+rl.place(x=615,y=505)
+
+rainLabel = Label(root, fg="white", background="black", textvariable=rain, font=("Helvet$
+rainLabel.place(x=760, y=480)
+
+clock_frame = tk.Label(root, font=('Helvetica', 40, 'bold'), bg='black', fg='white')
+clock_frame.place(x=620, y=150)
+
+dateL = tk.Label(root, font=('Helvetica', 25), bg='black', fg='white')
+dateL.place(x=634, y=220)
+
+dateL.config(text = today)
+
+tt = Label(root, fg="white", bg="black", text=" Weather Station Project by team 4cast.",$
+tt.place(x=280,y=635)
+
+root.minsize(width=1000,height=850)
+root.bind("<1>",exit)
+
+def exit():
+        root.quit()
+
+def tick(time1=''):
+
+    time2 = time.strftime('%I:%M:%S')
+    if time2 != time1:
+      time1 = time2
+      clock_frame.config(text=time2)
+    clock_frame.after(200, tick)
+
+tick()
+
+
+def readSensor():
+        root.after(1000, readSensor)
+        h,t = dht.read_retry(11,4)
+        temp = "%.1f" %t
+        temperature.set(temp+" C")
+        hum = "%.1f" %h
+        humidity.set(hum+"  %")
+        GPIO.setup(23, GPIO.IN)
+        state = GPIO.input(23)
+
+
+        if(state == 0):
+           rai = ("Yes")
+        else:
+           rai = ("No")
+
+        rain.set(rai)
+
+root.after(1000, readSensor)
+
+
+root.mainloop()
+
+
+
